@@ -5,8 +5,9 @@
 .scans {
     display: flex;
     flex-direction: row;
-    gap: 2rem;
-    padding-left: 2rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 0rem 2rem 0rem 2rem;
 }
 
 .scanButton {
@@ -14,9 +15,8 @@
     bottom: 5rem;
     right: 15rem;
     font-weight: bold;
-    border: 1px solid #ffae00;
-    background-color: #ffae00;
-    color: black;
+    background-color: #f0ffce;
+    color: #2e303a;
     width: 3rem;
     height: 3rem;
     font-size:xx-large;
@@ -24,7 +24,7 @@
 }
 
 .scanButton:hover {
-    color:#ffae00;
+    background-color: #d9fc89;
     width: 3.5rem;
     height: 3.5rem;
 }
@@ -45,16 +45,16 @@ input, select, textarea {
     min-height: 2rem;
     min-width: 100%;
     display: inline-block;
-    border: 1px solid #ffae00;
+    border: 1px solid #f0ffce;
     border-radius: 4px;
     box-sizing: border-box;
     max-height: 10rem;
     max-width: 100%;
-    color: #ffae00;
+    color: #f0ffce;
 }
 
 input:focus{
-    outline: 2px solid #ffae00;
+    outline: 2px solid #f0ffce;
 }
 
 .configItem {

@@ -45,12 +45,12 @@ function Stats() {
         {
             name: 'completed',
             value: queryData.aiCompleted,
-            fill: '#55ff2e'
+            fill: '#83ff67'
         },
         {
             name: 'failed',
             value: queryData.aiFailed,
-            fill: '#ff2e2e'
+            fill: '#ff6f6f'
         }
     ]
 
@@ -114,13 +114,13 @@ function Stats() {
                     <YAxis width="auto" />
                     <Tooltip contentStyle={{
                         backgroundColor: '#1f2028', 
-                        border: '1px solid #ffae00',
+                        border: '1px solid #f0ffce',
                         borderRadius: '8px',}}>
                     </Tooltip>
                     <Legend />
-                    <Bar name="Errors" dataKey="errors" fill="#ff2e2e" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
-                    <Bar name="Warnings" dataKey="warnings" fill="#ffe32e" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
-                    <Bar name="Notices" dataKey="notices" fill="#327aff" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Errors" dataKey="errors" fill="#ff6f6f" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Warnings" dataKey="warnings" fill="#ffca59" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Notices" dataKey="notices" fill="#4888ff" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
                     <RechartsDevtools />
                 </BarChart>
             </div>
@@ -151,14 +151,14 @@ function Stats() {
                     <YAxis width="auto" niceTicks="snap125" />
                     <Tooltip contentStyle={{
                         backgroundColor: '#1f2028', 
-                        border: '1px solid #ffae00',
+                        border: '1px solid #f0ffce',
                         borderRadius: '8px',}}>
                     </Tooltip>
                     <Legend />
-                    <Bar name='Conforming' dataKey="conforming" stackId="a" fill="#55ff2e" background />
-                    <Bar name='Non-conforming' dataKey="nonConforming" stackId="a" fill="#ff2e2e" background />
-                    <Bar name='Manual assessment required' dataKey="manualAssessment" stackId="a" fill="#ffe32e" background />
-                    <Bar name='Not verified' dataKey="notVerified" stackId="a" fill="#7e7e7e" background />
+                    <Bar name='Conforming' dataKey="conforming" stackId="a" fill="#83ff67"/>
+                    <Bar name='Non-conforming' dataKey="nonConforming" stackId="a" fill="#ff6f6f"/>
+                    <Bar name='Manual assessment required' dataKey="manualAssessment" stackId="a" fill="#ffca59"/>
+                    <Bar name='Not verified' dataKey="notVerified" stackId="a" fill="#7e7e7e"/>
                     <RechartsDevtools />
                 </BarChart>
             </div>
@@ -186,14 +186,14 @@ function Stats() {
                     <YAxis width="auto" />
                     <Tooltip contentStyle={{
                         backgroundColor: '#1f2028', 
-                        border: '1px solid #ffae00',
+                        border: '1px solid #f0ffce',
                         borderRadius: '8px',}}>
                     </Tooltip>
                     <Legend />
-                    <Bar name="Started" dataKey="started" fill="#327aff" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
-                    <Bar name="Completed" dataKey="completed" fill="#55ff2e" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
-                    <Bar name="Partially completed" dataKey="partial" fill="#ffe32e" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
-                    <Bar name="Failed" dataKey="failed" fill="#ff2e2e" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Started" dataKey="started" fill="#4888ff" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Completed" dataKey="completed" fill="#83ff67" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Partially completed" dataKey="partial" fill="#ffca59" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Failed" dataKey="failed" fill="#ff6f6f" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
                     <RechartsDevtools />
                 </BarChart>
             </div>
@@ -221,13 +221,13 @@ function Stats() {
                     <YAxis width="auto" />
                     <Tooltip contentStyle={{
                         backgroundColor: '#1f2028', 
-                        border: '1px solid #ffae00',
+                        border: '1px solid #f0ffce',
                         borderRadius: '8px',}}>
                     </Tooltip>
                     <Legend />
-                    <Bar name="Started" dataKey="started" fill="#327aff" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
-                    <Bar name="Completed" dataKey="completed" fill="#55ff2e" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
-                    <Bar name="Failed" dataKey="failed" fill="#ff2e2e" activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Started" dataKey="started" fill="#4888ff" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Completed" dataKey="completed" fill="#83ff67" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
+                    <Bar name="Failed" dataKey="failed" fill="#ff6f6f" activeBar={{ fill: '#9d4eb1', stroke: '#19191a' }} radius={[8, 8, 0, 0]} />
                     <RechartsDevtools />
                 </BarChart>
             </div>
@@ -251,13 +251,13 @@ function Stats() {
                         cx="50%"
                         cy="50%"
                         outerRadius="70%"
-                        fill="#ffae00"
+                        fill="#ffca59"
                         isAnimationActive={true}
                         label
                     />
                     <Tooltip contentStyle={{
                     backgroundColor: '#1f2028', 
-                    border: '1px solid #ffae00',
+                    border: '1px solid #f0ffce',
                     borderRadius: '8px',}}>
                     </Tooltip>
                     <RechartsDevtools />

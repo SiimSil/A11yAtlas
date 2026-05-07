@@ -1,12 +1,12 @@
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 import './Header.css'
 
 function Header() {
     return (
         <header className="header-container">
-            <h1 className="header-h1">Alternative Pa11y Dashboard</h1>
-            <Link to="/scans">Scans</Link>
-            <Link to="/stats">Statistics</Link>
+            <h1 className="header-h1">A11yAtlas</h1>
+            <NavLink className={({isActive}) => isActive ? 'active' : 'nonActive'} to="/">Scans</NavLink>
+            <NavLink className={({isActive}) => isActive ? 'active' : 'nonActive'} to="/stats">Statistics</NavLink>
         </header>
     )
 }

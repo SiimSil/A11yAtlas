@@ -48,3 +48,39 @@
     height: 2rem;
     margin: 0 0 0 auto;
 }
+
+.issueTableHead {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid#2e303a;
+}
+
+.issueTableHead h2 {
+    border: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.issueSelectContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.issueSelectContainer select {
+    min-width: 5.5rem;
+    width: 5.5rem;
+}
+
+.issueTableHead .issueSelectContainer {
+    margin-left: auto;
+    margin-right: 2rem;
+}
+
+.occurrenceItem {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    justify-content: center;
+}

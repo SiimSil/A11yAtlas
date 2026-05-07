@@ -1,7 +1,7 @@
 import type { Issue, SubpageResponse } from "./types";
-import { useReactTable, createColumnHelper, getCoreRowModel, flexRender, getSortedRowModel, getPaginationRowModel } from '@tanstack/react-table';
-import { useState, useMemo } from 'react'
-import type { SortingState, SortingFn, Row } from "@tanstack/react-table";
+import { useReactTable, createColumnHelper, getCoreRowModel, getExpandedRowModel, flexRender, getSortedRowModel, getPaginationRowModel } from '@tanstack/react-table';
+import { useState, useMemo, Fragment } from 'react'
+import type { SortingState } from "@tanstack/react-table";
 import './SubpageDetails.css'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { aiAnalyzePage } from "./api/pages";
@@ -9,39 +9,59 @@ import { useParams } from "react-router"
 import ReactMarkdown from 'react-markdown'
 
 const columnHelper = createColumnHelper<Issue>()
-const sortByIssueType: SortingFn<Issue> = (rowA: Row<Issue>, rowB: Row<Issue>, columnId: string) => {
-    if(rowA.original.typeCode===rowB.original.typeCode)
-        return 0
-    else
-        return (rowA.original.typeCode>rowB.original.typeCode ? 1 : -1) //-1, 0, or 1 - access any row data using rowA.original and rowB.original
-}
 const defaultColumns = [
-        columnHelper.accessor('code', {
-        header: "Code",
+    columnHelper.accessor('type', {
+    header: 'Type',
+    cell: info => {
+        const type = info.getValue()
+
+        const pillClass =
+        type === 'error'
+            ? 'redPill'
+            : type === 'warning'
+            ? 'yellowPill'
+            : 'bluePill'
+
+        return <span className={pillClass}>{type}</span>
+    },
+    sortingFn: 'text',
+    }),
+
+    columnHelper.accessor('count', {
+        header: 'Count',
+        cell: info => <span className="standardPill">{info.getValue()}</span>,
+        sortingFn: 'basic',
+    }),
+
+    columnHelper.accessor('code', {
+        header: 'Code',
         cell: info => info.getValue(),
-        sortingFn: 'text'
-        }),
-        columnHelper.accessor('type', {
-        header: "Type",
+        sortingFn: 'text',
+    }),
+
+    columnHelper.accessor('message', {
+        header: 'Message',
         cell: info => info.getValue(),
-        sortingFn: sortByIssueType
-        }),
-        columnHelper.accessor('message', {
-        header: "Message",
-        cell: info => info.getValue(),
-        sortingFn: 'text'
-        }),
-        columnHelper.accessor('context', {
-        header: "Context",
-        cell: info => info.getValue(),
-        sortingFn: 'text'
-        }),
-        columnHelper.accessor('selector', {
-        header: "Selector",
-        cell: info => info.getValue(),
-        sortingFn: 'text'
-        }),
-    ]
+        sortingFn: 'text',
+    }),
+        columnHelper.display({
+        id: 'expand',
+        header: '',
+        cell: ({ row }) => (
+        <button
+            type="button"
+            className="expandButton"
+            onClick={(e) => {
+            e.stopPropagation()
+            row.toggleExpanded()
+            }}
+            aria-label={row.getIsExpanded() ? 'Collapse issue details' : 'Expand issue details'}
+        >
+            {row.getIsExpanded() ? '−' : '+'}
+        </button>
+        ),
+    }),
+]
 
 function SubpageDetails({ page }: { page: SubpageResponse}) {
     const queryClient = useQueryClient();
@@ -49,9 +69,46 @@ function SubpageDetails({ page }: { page: SubpageResponse}) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [pagination, setpageIndex] = useState({pageIndex: 0, pageSize: 10,});
     const [goToIndex, setgoToIndex] = useState(pagination.pageIndex);
-    const issues: Issue[] = useMemo(() => {
-        return page.results ?? []
-    }, [page])
+    const [standard, setStandard] = useState('WCAG2A')
+    const [issueType, setIssueType] = useState<'all issue' | 'error' | 'warning' | 'notice'>('error')
+    const [search, setSearch] = useState('')
+    const selectedStandardIssues: Issue[] = useMemo(() => {
+        if (!page.results) {
+            return []
+        }
+
+        if (standard === 'WCAG2A') {
+            return page.results.wcag2aResults ?? []
+        }
+
+        if (standard === 'WCAG2AA') {
+            return page.results.wcag2aaResults ?? []
+        }
+
+        return page.results.wcag2aaaResults ?? []
+        }, [page, standard])
+
+        const filteredIssues: Issue[] = useMemo(() => {
+        let issues = selectedStandardIssues
+
+        if (issueType !== 'all issue') {
+            issues = issues.filter(issue => issue.type === issueType)
+        }
+
+        if (search.trim() !== '') {
+            const searchLower = search.toLowerCase()
+
+            issues = issues.filter(issue =>
+                issue.code.toLowerCase().includes(searchLower) ||
+                issue.message.toLowerCase().includes(searchLower) ||
+                issue.occurrences.some(occurrence =>
+                    occurrence.selector.toLowerCase().includes(searchLower) ||
+                    occurrence.context.toLowerCase().includes(searchLower)
+                )
+            )
+    }
+    return issues
+}, [selectedStandardIssues, issueType, search])
 
     const aiAnalyzePageMutation = useMutation({
     mutationFn: aiAnalyzePage,
@@ -62,9 +119,11 @@ function SubpageDetails({ page }: { page: SubpageResponse}) {
     }})
 
     const table = useReactTable({
-        data: issues,
+        data: filteredIssues,
         columns: defaultColumns,
+        getRowCanExpand: row => row.original.occurrences.length > 0,
         getCoreRowModel: getCoreRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
         getSortedRowModel: getSortedRowModel(),
         onSortingChange: setSorting,
         getPaginationRowModel: getPaginationRowModel(),
@@ -83,15 +142,44 @@ function SubpageDetails({ page }: { page: SubpageResponse}) {
                         <div className="analysis">
                             <div className="aiHeader">
                                 <h2>AI analysis</h2>
-                                <button className="reAnalyse" onClick={() => aiAnalyzePageMutation.mutate(page.id)}>⟲</button>
+                                <button className="reAnalyse" onClick={() => aiAnalyzePageMutation.mutate(page._id)}>⟲</button>
                             </div>
                             <ReactMarkdown>{page.aiAnalysis}</ReactMarkdown>
                         </div>
                     ) : (
                         <div>
                             <p>No AI analysis found</p>
-                            <button className='centerAnalysisButton' onClick={() => aiAnalyzePageMutation.mutate(page.id)}>Analyse this page</button>
+                            <button className='centerAnalysisButton' onClick={() => aiAnalyzePageMutation.mutate(page._id)}>Analyse this page</button>
                         </div>)}
+                </div>
+                <div className="issueTableHead">
+                    <h2 className="noBorder">Showing {standard} {issueType}s</h2>
+                    <div className="issueSelectContainer">
+                        <input
+                            type="search"
+                            placeholder="Search..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <select 
+                            name="standard"
+                            onChange={(e) => setStandard(e.target.value)}
+                            value={standard}>
+                            <option value="WCAG2A">WCAG2A</option>
+                            <option value="WCAG2AA">WCAG2AA</option>
+                            <option value="WCAG2AAA">WCAG2AAA</option>
+                        </select>
+                        <select
+                            name="issueType"
+                            onChange={(e) => setIssueType(e.target.value as 'all issue' | 'error' | 'warning' | 'notice')}
+                            value={issueType}
+                            >
+                            <option value="all issue">All issues</option>
+                            <option value="error">Errors</option>
+                            <option value="warning">Warnings</option>
+                            <option value="notice">Notices</option>
+                        </select>
+                    </div>
                 </div>
                 <table className='subpagesTable'>
                     <thead>
@@ -132,17 +220,31 @@ function SubpageDetails({ page }: { page: SubpageResponse}) {
                     <tbody>
                     {table.getRowModel().rows.length === 0 ? (
                         <tr>
-                            <td colSpan={defaultColumns.length}>No subpages found.</td>
+                            <td colSpan={defaultColumns.length}>No issues found.</td>
                         </tr>
                         ) : (
                         table.getRowModel().rows.map((row) => (
-                            <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </td>
-                            ))}
-                            </tr>
+                            <Fragment key={row.id}>
+                                <tr key={row.id}>
+                                    {row.getVisibleCells().map((cell) => (
+                                        <td key={cell.id}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </td>
+                                    ))}
+                                </tr>
+                                {row.getIsExpanded() && (
+                                <tr className="expandedIssueRow">
+                                    <td colSpan={row.getVisibleCells().length}>
+                                    {row.original.occurrences.map((occurrence, index) => (
+                                        <div key={index} className="occurrenceItem">
+                                        <p><strong>Selector:</strong> {occurrence.selector}</p>
+                                        <pre>{occurrence.context}</pre>
+                                        </div>
+                                    ))}
+                                    </td>
+                                </tr>
+                                )}
+                            </Fragment>
                         ))
                     )}
                     </tbody>

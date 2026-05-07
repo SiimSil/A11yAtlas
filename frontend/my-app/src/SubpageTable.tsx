@@ -6,15 +6,56 @@ import { useState, useMemo } from 'react'
 import SubpageDetails from './SubpageDetails';
 
 const columnHelper = createColumnHelper<SubpageTableData>()
-const defaultColumns = [
+
+function verdictPillClass(verdict: SubpageTableData['verdict']) {
+        switch (verdict) {
+            case 'Conforming':
+                return 'greenPill'
+            case 'Needs-review':
+                return 'yellowPill'
+            case 'Non-conforming':
+                return 'redPill'
+            default:
+                return 'greyPill'
+        }
+    }
+
+    function countPillClass(type: 'error' | 'warning' | 'notice', value: number) {
+        if (value === 0) return 'greyPill'
+
+        switch (type) {
+            case 'error':
+                return 'redPill'
+            case 'warning':
+                return 'yellowPill'
+            case 'notice':
+                return 'bluePill'
+        }
+    }
+
+    const defaultColumns = [
+        columnHelper.accessor('verdict', {
+            header: 'Verdict',
+            cell: info => {
+                const verdict = info.getValue()
+                return <span className={verdictPillClass(verdict)}>{verdict}</span>
+            },
+            sortingFn: 'text',
+        }),
         columnHelper.accessor('url', {
         header: "URL",
         cell: info => info.getValue(),
         enableSorting: false
         }),
         columnHelper.accessor('status', {
-        header: "Status",
-        cell: info => info.getValue(),
+            header: "Status",
+            cell: info => {
+                const status = info.getValue()
+
+                return (
+                <span className={status === 'completed' ? 'greenPill' : 'greyPill'}>{status}</span>
+            )
+        },
         sortingFn: 'text'
         }),
         columnHelper.accessor('total', {
@@ -23,24 +64,34 @@ const defaultColumns = [
         sortingFn: 'basic'
         }),
         columnHelper.accessor('errors', {
-        header: "Errors",
-        cell: info => info.getValue(),
-        sortingFn: 'basic'
+            header: "Errors",
+            cell: info => {
+                const value = info.getValue()
+                return (
+                    <span className={countPillClass('error', value)}>{value}</span>
+                )
+            },
+            sortingFn: 'basic'
         }),
         columnHelper.accessor('warnings', {
-        header: "Warnings",
-        cell: info => info.getValue(),
-        sortingFn: 'basic'
+            header: "Warnings",
+            cell: info => {
+                const value = info.getValue()
+                return (
+                    <span className={countPillClass('warning', value)}>{value}</span>
+                )
+            },
+            sortingFn: 'basic'
         }),
         columnHelper.accessor('notices', {
-        header: "Notices",
-        cell: info => info.getValue(),
-        sortingFn: 'basic'
-        }),
-        columnHelper.accessor('createdAt', {
-        header: "Created",
-        cell: info => info.getValue().toLocaleString(),
-        sortingFn: 'datetime'
+            header: "Notices",
+            cell: info => {
+                const value = info.getValue()
+                return (
+                    <span className={countPillClass('notice', value)}>{value}</span>
+                )
+            },
+            sortingFn: 'basic'
         }),
         columnHelper.accessor('updatedAt', {
         header: "Updated",
@@ -64,10 +115,12 @@ function SubpageTable({ pagesData }: { pagesData: SubpageResponse[] }) {
     const [pagination, setpageIndex] = useState({pageIndex: 0, pageSize: 10,});
     const [goToIndex, setgoToIndex] = useState(pagination.pageIndex);
     const [selectedRow, setselectedRow] = useState<SubpageResponse | undefined>(undefined)
+    const [search, setSearch] = useState('')
 
     const pages: SubpageTableData[] = useMemo(() => {
     return pagesData.map((element): SubpageTableData => ({
-        id: element.id,
+        _id: element._id,
+        verdict: element.verdict,
         url: element.url,
         status: element.status,
         aiStatus: element.aiStatus || "Not run",
@@ -75,14 +128,28 @@ function SubpageTable({ pagesData }: { pagesData: SubpageResponse[] }) {
         errors: element.count?.error ?? 0,
         warnings: element.count?.warning ?? 0,
         notices: element.count?.notice ?? 0,
-        createdAt: new Date(element.createdAt),
         updatedAt: new Date(element.updatedAt),
-        aiSourceResultDate: (element.aiSourceResultDate ? new Date(element.aiSourceResultDate) : 'None')
+        aiSourceResultDate: element.aiSourceResultDate ? new Date(element.aiSourceResultDate) : undefined
     }))
     }, [pagesData])
 
+    const filteredPages: SubpageTableData[] = useMemo(() => {
+        if (search.trim() === '') {
+            return pages
+        }
+
+        const searchLower = search.toLowerCase()
+
+        return pages.filter(page =>
+            page.url.toLowerCase().includes(searchLower) ||
+            page.verdict.toLowerCase().includes(searchLower) ||
+            page.status.toLowerCase().includes(searchLower) ||
+            page.aiStatus.toLowerCase().includes(searchLower)
+        )
+    }, [pages, search])
+
     const table = useReactTable({
-        data: pages,
+        data: filteredPages,
         columns: defaultColumns,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -97,7 +164,15 @@ function SubpageTable({ pagesData }: { pagesData: SubpageResponse[] }) {
 
     return (
         <div className="subpagesContainer">
+        <div className='subpageTableHead'>
         <h2>Subpages</h2>
+            <input
+                type="search"
+                placeholder="Search subpages..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+            />
+        </div>
         <table className='subpagesTable'>
             <thead>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -141,7 +216,11 @@ function SubpageTable({ pagesData }: { pagesData: SubpageResponse[] }) {
                 </tr>
                 ) : (
                 table.getRowModel().rows.map((row) => (
-                    <tr key={row.id} onClick={() => setselectedRow(pagesData.find((el) => el.id===row.original.id))}>
+                    <tr key={row.id} 
+                        className={`subpageRow verdict-row-${row.original.verdict}`}
+                        onClick={() => {
+                            setselectedRow(pagesData.find((page) => page._id===row.original._id))}
+                        }>
                     {row.getVisibleCells().map((cell) => (
                         <td key={cell.id}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}

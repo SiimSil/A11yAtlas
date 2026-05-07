@@ -10,12 +10,11 @@
     padding: 0rem 0rem 0.5rem 1rem;
     border-bottom: 1px solid#2e303a;
     text-align: left;
-    margin-bottom: 1rem;
 }
 
 .subpagesTable {
-    border:1px solid #ffae00;
-    border-collapse: collapse;
+    border-spacing: 0;
+    margin-top: 2rem;
 }
 
 .sortableHeader {
@@ -24,18 +23,35 @@
 }
 
 thead {
-    background-color: black;
+    background-color: #161616;
 }
 
 tbody {
-    background-color: #2e303a;
+    background-color: #222222;
 }
 
 th,
 td {
-    border: 1px solid #ffae00;
+    border: 1px solid #f0ffce;
     padding: 0.5rem;
 }
+
+th:first-child {
+    border-top-left-radius: 8px;
+}
+
+th:last-child {
+    border-top-right-radius: 8px;
+}
+
+tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+}
+
 
 .tableControls {
     display: flex;
@@ -49,4 +65,54 @@ td {
 .tableControls select, input {
     width: auto;
     min-width: 2rem;
+}
+
+.tablePill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.22rem 0.55rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.subpagesTable .greenPill,
+.subpagesTable .yellowPill,
+.subpagesTable .redPill,
+.subpagesTable .greyPill,
+.subpagesTable .bluePill,
+.subpagesTable .standardPill {
+    display: inline-flex;
+    gap: 0.35rem;
+    white-space: nowrap;
+    min-width: 1.8rem;
+}
+
+.subpageRow {
+    cursor: pointer;
+}
+
+.subpageRow:hover {
+    background-color: rgba(240, 255, 206, 0.05);
+}
+
+.subpageTableHead {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid#2e303a;
+}
+
+.subpageTableHead input {
+    margin-left: auto;
+    margin: 0rem 2rem 0.5rem auto;
+}
+
+.subpageTableHead h2 {
+    border: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }

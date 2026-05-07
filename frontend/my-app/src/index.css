@@ -36,7 +36,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
-    --text-h: #ffae00;
+    --text-h: #f0ffce;
     --bg: #19191a;
     --border: #2e303a;
     --code-bg: #1f2028;
@@ -83,45 +83,150 @@ h2 {
   margin: 0 0 8px;
 }
 
-a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #ffae00;
-  background-color: rgb(34, 34, 33);
-  text-align: center;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-  text-decoration: none;
-  font-size: 1.2rem;
-  border-radius: 8px;
-  font-weight: 500;
-  border-left: 1px solid #ffae00;
-  border-right: 1px solid #ffae00;
-  transition: 0.3s;
-}
-
+a,
 button {
   display: flex;
   justify-content: center;
-  border: none;
   align-items: center;
-  color: #ffae00;
-  background-color: rgb(34, 34, 33);
+  color: #19191a;
+  background-color: #f0ffce;
   text-align: center;
+  padding: 0.6rem;
   text-decoration: none;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-  font-size: 1.2rem;
-  border-radius: 8px;
-  font-weight: 500;
-  border-left: 1px solid #ffae00;
-  border-right: 1px solid #ffae00;
+  font-size: 0.9rem;
+  font-weight: 400;
+  font-family: var(--sans);
+  line-height: normal;
+  border-radius: 20px;
   transition: 0.3s;
+  box-sizing: border-box;
+  border: 0;
 }
 
 button:hover,
 a:hover {
-    border-top: 1px solid #ffae00;
-    border-bottom: 1px solid #ffae00;
-    background-color: black;
+    background-color: #d9fc89;
 }
 
+.dangerButton {
+    color: #19191a;
+    background-color: #ff6f6f;
+}
+
+.dangerButton:hover {
+  background-color: rgb(255, 71, 71);
+}
+
+.pillContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 1rem 0rem 1rem 0rem;
+  padding: 0;
+}
+
+.pillContainer p {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0;
+}
+
+.greenPill {
+  display: flex;
+  justify-content: center;
+  border: none;
+  align-items: center;
+  color: #19191a;
+  background-color: #83ff67;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+  font-size: small;
+  border-radius: 20px;
+  line-height: 1;
+}
+
+.yellowPill {
+  display: flex;
+  justify-content: center;
+  border: none;
+  align-items: center;
+  color: #19191a;
+  background-color: #ffca59;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+  font-size: small;
+  border-radius: 20px;
+  line-height: 1;
+}
+
+.redPill {
+  display: flex;
+  justify-content: center;
+  border: none;
+  align-items: center;
+  color: #19191a;
+  background-color: #ff6f6f;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+  font-weight: 600;
+  font-size: small;
+  border-radius: 20px;
+  line-height: 1;
+}
+
+.greyPill {
+  display: flex;
+  justify-content: center;
+  border: none;
+  align-items: center;
+  color: #19191a;
+  background-color: #bdbdbd;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+  font-weight: 600;
+  font-size: small;
+  border-radius: 20px;
+  line-height: 1;
+}
+
+.bluePill {
+  display: flex;
+  justify-content: center;
+  border: none;
+  align-items: center;
+  color: #19191a;
+  background-color: #4888ff;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+  font-weight: 600;
+  font-size: small;
+  border-radius: 20px;
+  line-height: 1;
+}
+
+.standardPill {
+  display: flex;
+  justify-content: center;
+  border: none;
+  align-items: center;
+  color: #19191a;
+  background-color: #f0ffce;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+  font-size: small;
+  border-radius: 20px;
+  line-height: 1;
+}

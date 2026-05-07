@@ -26,4 +26,10 @@
     right: 1rem;
     font-size: 1rem;
     cursor: pointer;
+    color: #19191a;
+    background-color: #ff6f6f;
+}
+
+.modal-close:hover {
+    background-color: rgb(255, 71, 71);
 }

@@ -2,6 +2,10 @@
     display: flex;
     flex-direction: row;
     border-bottom: 1px solid #2e303a;
+    position: sticky;
+    top: 0;
+    background-color: #19191a;
+    z-index: 500;
 }
 
 .header-h1 {
@@ -10,4 +14,33 @@
 
 .header-container a {
     margin: 1rem 0rem 1rem 2rem;
+    background-color: #19191a;
+    color: #f0ffce;
+    font-size: 1.1rem;
+    padding: 0.5rem;
+}
+
+.nonActive {
+    border-bottom: 1px solid #ffae0000;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+}
+
+.active {
+    border-bottom: 2px solid #f0ffce;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+}
+
+.nonActive:hover {
+    transition: 0.3;
+    border-bottom: #f0ffce 2px solid;
+    border-top: 0
+}
+
+.active:hover {
+    border-bottom: #f0ffce 2px solid;
+    border-top: 0
 }

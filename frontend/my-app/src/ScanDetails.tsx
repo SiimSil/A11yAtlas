@@ -14,6 +14,38 @@ function ScanDetails() {
     const [modalTitle, setModalTitle] = useState('')
     const [modalContent, setModalContent] = useState<string>('')
 
+    function verdictClass(): string {
+        let verdict = scan.verdict;
+        if(verdict==="Non-conforming") {
+            return "redPill"
+        }
+        else if(verdict==="Requires manual assessment") {
+            return "yellowPill"
+        }
+        else if(verdict==="Not verified") {
+            return "greyPill"
+        }
+        else {
+            return "greenPill"
+        }
+    }
+
+    function statusClass(): string {
+        let status = scan.status;
+        if(status==="failed") {
+            return "redPill"
+        }
+        else if(status==="started") {
+            return "bluePill"
+        }
+        else if(status==="partially complete") {
+            return "greyPill"
+        }
+        else {
+            return "greenPill"
+        }
+    }
+
     const aiAnalyzeScanMutation = useMutation({
     mutationFn: aiAnalyzeScan,
     onError: (e) =>
@@ -41,9 +73,9 @@ function ScanDetails() {
     let warning = count.warning;
     let notice = count.notice;
     let total =  error+warning+notice;
-    let chartData = [{ name: 'errors', value: error },
-        { name: 'warnings', value: warning },
-        { name: 'notices', value: notice }];
+    let chartData = [{ name: 'errors', value: error, fill: '#ff6f6f' },
+        { name: 'warnings', value: warning, fill: '#ffca59' },
+        { name: 'notices', value: notice, fill: '#4888ff' }];
 
     function openConfigModal(title: string, content: string) {
         setModalTitle(title)
@@ -115,12 +147,30 @@ function ScanDetails() {
                 <div className="summaryChartContainer">
                     <div className='summary'>
                         <p>Pages analyzed: {scan.scanCount}</p>
-                        <p>Scan status: {scan.status}</p>
-                        <p>Total issues: {total}</p>
-                        <p>Errors: {error}</p>
-                        <p>Warnings: {warning}</p>
-                        <p>Notices: {notice}</p>
-                        <h3>Verdict: {scan.verdict}</h3>
+                        <div className='pillContainer'>
+                            <p>Scan status: </p>
+                            <p className={statusClass()}>{scan.status}</p>
+                        </div>
+                        <div className='pillContainer'>
+                            <p>Total issues: </p>
+                            <p className='standardPill'>{total}</p>
+                        </div>
+                        <div className='pillContainer'>
+                            <p>Errors: </p>
+                            <p className='redPill'>{error}</p>
+                        </div>
+                        <div className='pillContainer'>
+                            <p>Warnings: </p>
+                            <p className='yellowPill'>{warning}</p>
+                        </div>
+                        <div className='pillContainer'>
+                            <p>Notices: </p>
+                            <p className='bluePill'>{notice}</p>
+                        </div>
+                        <div className='pillContainer'>
+                            <h3>Verdict: </h3>
+                            <h3 className={verdictClass()}>{scan.verdict}</h3>
+                        </div>
                     </div>
                     <PieChart
                         style={{ width: '100%', height: '100%', maxWidth: '15rem', maxHeight: '15rem', aspectRatio: 1 }}
@@ -138,7 +188,7 @@ function ScanDetails() {
                         />
                         <Tooltip defaultIndex={0} contentStyle={{
                         backgroundColor: '#2e303a', 
-                        border: '1px solid #ffae00',
+                        border: '1px solid #f0ffce',
                         borderRadius: '8px',}}>
                         </Tooltip>
                         <RechartsDevtools />
@@ -150,15 +200,21 @@ function ScanDetails() {
                 <p>AI analyzed: {queryData.aiCompleted+queryData.aiFailed} page(s)</p>
                 <p>AI analysis completed: {queryData.aiCompleted}</p>
                 <p>AI analysis failed: {queryData.aiFailed}</p>
-                <button onClick={() => aiAnalyzeScanMutation.mutate(id!)} 
+                <button className='aiButton' onClick={() => aiAnalyzeScanMutation.mutate(id!)} 
                 disabled={aiAnalyzeScanMutation.isPending}>
                 {aiAnalyzeScanMutation.isPending ? 'Running...' : 'Run AI analysis'}
                 </button>
             </div>
             <div className="ai">
                 <h2>Pa11y task config</h2>
-                <p>Standard: {scan.standard}</p>
-                <p>{scan.requiresAuth ? "Authentication required" : "No authentication"}</p>
+                <div className='pillContainer'>
+                    <p>Standard: </p>
+                    <p className='standardPill'>{scan.standard}</p>
+                </div>
+                <div className='pillContainer'>
+                    <p>Auth: </p>
+                    <p className='standardPill'>{scan.requiresAuth ? "Authentication required" : "No authentication"}</p>
+                </div>
                 {optionalRender()}
                 {isConfigModalOpen && (
                 <Modal onClose={() => setConfigModalOpen(false)} closeButton={true} boxClass="optionalModal">

@@ -34,7 +34,8 @@ export type ScanDetails = {
 };
 
 export type SubpageTableData = {
-    id: string,
+    _id: string,
+    verdict: string,
     url: string,
     status: string,
     aiStatus: string,
@@ -42,13 +43,12 @@ export type SubpageTableData = {
     errors: number,
     warnings: number,
     notices: number,
-    createdAt: Date,
     updatedAt: Date,
     aiSourceResultDate?: Date | string
 }
 
 export type SubpageResponse = {
-    id: string,
+    _id: string,
     url: string,
     pa11yTaskId: string,
     status: string,
@@ -62,19 +62,24 @@ export type SubpageResponse = {
         error: number,
         warning: number,
         notice: number,
+    },
+    verdict: string,
+    results: {
+        wcag2aResults: Array<Issue>
+        wcag2aaResults: Array<Issue>
+        wcag2aaaResults: Array<Issue>
     }
-    results: Array<Issue>
 }
 
 export type Issue = {
     code: string
     type: string
-    typeCode: number
     message: string
-    context: string
-    selector: string
-    runner: string
-    runnerExtras: object
+    count: number
+    occurrences: Array<{
+        selector: string
+        context: string
+    }>
 }
 
 export type Stats = {

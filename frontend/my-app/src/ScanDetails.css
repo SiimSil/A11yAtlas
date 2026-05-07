@@ -80,3 +80,24 @@
     padding: 2rem;
     box-sizing: border-box;
 }
+
+.pillContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0rem 0.5rem 0.5rem 0rem;
+    padding: 0;
+}
+
+.aiButton {
+    margin-top: auto;
+    width: min-content;
+    text-wrap: nowrap;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pillContainer p {
+    margin: 0;
+}

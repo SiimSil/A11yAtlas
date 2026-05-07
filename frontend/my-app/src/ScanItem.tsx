@@ -18,6 +18,38 @@ function ScanItem({ scan }: Props) {
     const [password, setPassword] = useState('')
     const [runWithoutAuth, setRunWithoutAuth] = useState(false)
 
+    function verdictClass(): string {
+        let verdict = scan.verdict;
+        if(verdict==="Non-conforming") {
+            return "redPill"
+        }
+        else if(verdict==="Requires manual assessment") {
+            return "yellowPill"
+        }
+        else if(verdict==="Not verified") {
+            return "greyPill"
+        }
+        else {
+            return "greenPill"
+        }
+    }
+
+    function statusClass(): string {
+        let status = scan.status;
+        if(status==="failed") {
+            return "redPill"
+        }
+        else if(status==="started") {
+            return "bluePill"
+        }
+        else if(status==="partially complete") {
+            return "greyPill"
+        }
+        else {
+            return "greenPill"
+        }
+    }
+
     const deleteScanMutation = useMutation({
     mutationFn: deleteScan,
     onError: (e) =>
@@ -40,7 +72,7 @@ function ScanItem({ scan }: Props) {
         if(scan.requiresAuth) {
             return (
             <div>
-                <button onClick={() => setRerunModalOpen(true)}>Rerun scan</button>
+                <button onClick={() => setRerunModalOpen(true)}>Rerun ⟲</button>
                 {isRerunModalOpen && (
                 <Modal onClose={() => setRerunModalOpen(false)} boxClass='modal-box' closeButton={false}>
                     <div>
@@ -65,44 +97,51 @@ function ScanItem({ scan }: Props) {
             </div>)
         }
         else {
-            return (<button onClick={() => rerunScanMutation.mutate({id: scan._id, username, password, runWithoutAuth})}>Rerun</button>)
+            return (<button onClick={() => rerunScanMutation.mutate({id: scan._id, username, password, runWithoutAuth})}>Rerun ⟲</button>)
         }
     }
 
     return (
         <div className='scan'>
-            <h3 className='scan-name'>{scan.name}</h3>
+            <h2 className='scan-name'>{scan.name}</h2>
                 <div className='standard-container'>
                     <p className={(scan.standard==="WCAG2A" || scan.standard==="WCAG2AA" || scan.standard==="WCAG2AAA") ? "standard-active":"standard"}>WCAG2 A</p>
                     <p className={(scan.standard==="WCAG2AA" || scan.standard==="WCAG2AAA") ? "standard-active":"standard"}>WCAG2 AA</p>
                     <p className={(scan.standard==="WCAG2AAA") ? "standard-active":"standard"}>WCAG2 AAA</p>
                 </div>
-                {scan.count?.error &&
-                    <div className='standard-container'>
-                        <p className='standard-active'>{scan.count?.error}</p>
-                        <p className='standard-active'>{scan.count?.warning}</p>
-                        <p className='standard-active'>{scan.count?.notice}</p>
+                {scan.count &&
+                    <div className='countContainer'>
+                        <p className='error'>{scan.count?.error}</p>
+                        <p className='warning'>{scan.count?.warning}</p>
+                        <p className='notice'>{scan.count?.notice}</p>
                     </div>
                 }
                 <div className='scan-content'>
                     <p>Root url: {scan.rootUrl}</p>
                     <p>Pages discovered: {scan.scanCount}</p>
-                    <p>Status: {scan.status}</p>
-                    {scan.verdict ? <p>Verdict: {scan.verdict}</p> : undefined}
-                    <div className='buttons'>
-                        <button onClick={() => setDeleteModalOpen(true)}>Delete scan</button>
-                        {isDeleteModalOpen && (
-                            <Modal onClose={() => setDeleteModalOpen(false)} boxClass='deleteBox' closeButton={false}>
-                                <h2>Delete {scan.name}?</h2>
-                                <div className='deleteButtons'>
-                                    <button onClick={() => deleteScanMutation.mutate(scan._id)}>Delete</button>
-                                    <button onClick={() => setDeleteModalOpen(false)}>Cancel</button>
-                                </div>
-                            </Modal>
-                        )}
-                        {rerunModal()}
-                        <Link to={`/scans/${scan._id}`}>Open details</Link>
+                    <div className='pillContainer'>
+                        <p>Status: </p>
+                        <p className={statusClass()}>{scan.status}</p>
+                    </div>
+                    {scan.verdict && 
+                    (<div className='pillContainer'>
+                        <p>Verdict:</p>
+                        <p className={verdictClass()}>{scan.verdict}</p>
+                    </div>)}
                 </div>
+                <div className='buttons'>
+                    <button className='dangerButton' onClick={() => setDeleteModalOpen(true)}>Delete 🗑</button>
+                    {isDeleteModalOpen && (
+                        <Modal onClose={() => setDeleteModalOpen(false)} boxClass='deleteBox' closeButton={false}>
+                            <h2>Delete {scan.name}?</h2>
+                            <div className='deleteButtons'>
+                                <button onClick={() => deleteScanMutation.mutate(scan._id)} className='dangerButton'>Delete</button>
+                                <button onClick={() => setDeleteModalOpen(false)}>Cancel</button>
+                            </div>
+                        </Modal>
+                    )}
+                    {rerunModal()}
+                    <Link to={`/scans/${scan._id}`}>Details ⇱</Link>
             </div>
         </div>
     )
