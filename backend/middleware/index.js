@@ -144,14 +144,64 @@ app.get('/scans/:id/detail', async (req, res) => {
             resultPages.push(resultPage);
             continue;
         }
-        resultPage.results = latestResult.results;
+        let wcag2aResults = [];
+        let wcag2aaResults = [];
+        let wcag2aaaResults = [];
+        for (let result of latestResult.results) {
+            let split = result.code.split('.');
+            let resultStandard = split[0];
+
+            let targetResults;
+
+            if (resultStandard === 'WCAG2A') {
+                targetResults = wcag2aResults;
+            }
+            else if (resultStandard === 'WCAG2AA') {
+                targetResults = wcag2aaResults;
+            }
+            else if (resultStandard === 'WCAG2AAA') {
+                targetResults = wcag2aaaResults;
+            }
+            else {
+                continue;
+            }
+            
+            let groupedIssue = targetResults.find(el => el.code === result.code);
+
+            if (groupedIssue) {
+                groupedIssue.count++;
+                groupedIssue.occurrences.push({
+                    selector: result.selector,
+                    context: result.context
+                });
+            }
+            else {
+                targetResults.push({
+                    type: result.type,
+                    code: result.code,
+                    message: result.message,
+                    count: 1,
+                    occurrences: [
+                        {
+                            selector: result.selector,
+                            context: result.context
+                        }
+                    ]
+                });
+            }
+        }
+        resultPage.results = {
+            wcag2aResults,
+            wcag2aaResults,
+            wcag2aaaResults
+        }
         resultPages.push(resultPage);
     }
     resultObj.aiCompleted = aiCompleted;
     resultObj.aiFailed = aiFailed;
     resultObj.pages = resultPages;
     return res.json(resultObj);
-})
+});
 
 //AI analyze all subpages
 app.post('/scans/:id/analyze', async (req, res) => {
@@ -486,6 +536,12 @@ app.post('/scans', async (req, res) => {
             config: config,
             requiresAuth: requiresAuth,
             status: "started",
+            verdict: "Not verified",
+            count: {
+                error: 0,
+                warning: 0,
+                notice: 0
+            },
             includeQuery,
             includeHash,
             depthLimit,
@@ -659,7 +715,13 @@ app.post('/scans/:id/rerun', async (req, res) => {
 
     try {
         const updateResult = await scanCollection.updateOne({ _id: idObj },{ $set: {
+            count: {
+                error: 0,
+                warning: 0,
+                notice: 0
+            },
             status: "started",
+            verdict: "Not verified",
             rerunAt: new Date(),}});
         console.log('Updated results in db =>', updateResult);
 
@@ -1064,13 +1126,27 @@ async function poll() {
 
                             if(!(pageDate.getTime()===resultDate.getTime())) {
                                 unchanged=false;
+                                let verdict;
+                                let count = {
+                                    error: latestResult.count.error,
+                                    warning: latestResult.count.warning,
+                                    notice: latestResult.count.notice
+                                }
+                                if(count.error>0) {
+                                    verdict = "Non-conforming"
+                                }
+                                else {
+                                    if(count.warning>0 || count.notice>0) {
+                                        verdict = "Needs review"
+                                    }
+                                    else {
+                                        verdict = "Conforming"
+                                    }
+                                }
                                 let updatePage = await pageCollection.updateOne({ _id: page._id }, { $set: { 
                                     status: "completed",
-                                    count: {
-                                        error: latestResult.count.error,
-                                        warning: latestResult.count.warning,
-                                        notice: latestResult.count.notice
-                                    },
+                                    count,
+                                    verdict: verdict,
                                     updatedAt: resultDate
                                 }});
                                 if(updatedAt===null || resultDate.getTime()>updatedAt.getTime()) {
@@ -1117,7 +1193,7 @@ async function poll() {
                     }
                     else {
                         if(warning>0 || notice>0) {
-                            verdict = "Requires manual assessment"
+                            verdict = "Needs review"
                         }
                         else {
                             verdict = "Conforming"
