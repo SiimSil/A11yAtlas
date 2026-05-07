@@ -11,7 +11,7 @@ function verdictPillClass(verdict: SubpageTableData['verdict']) {
         switch (verdict) {
             case 'Conforming':
                 return 'greenPill'
-            case 'Needs-review':
+            case 'Needs review':
                 return 'yellowPill'
             case 'Non-conforming':
                 return 'redPill'
