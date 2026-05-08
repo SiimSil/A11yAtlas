@@ -501,9 +501,9 @@ app.post('/scans', async (req, res) => {
         if (!url) {
             return res.status(400).json({ error: "URL is required" });
         }
-        const includeQuery = req.body.includeQuery;
-        const includeHash = req.body.includeHash;
-        const depthLimit = req.body.depthLimit;
+        const includeQuery = req.body.includeQuery ?? false;
+        const includeHash = req.body.includeHash  ?? false;
+        const depthLimit = req.body.depthLimit ?? 3;
 
         const insertResult = await collection.insertOne({
             _id: id,
@@ -1001,12 +1001,25 @@ async function crawl(url, includeQuery=false, includeHash=false, depthLimit=3) {
         let linkUrl = new URL(current.url, originUrl);
         let normUrl = normalizeUrl(linkUrl.href, originUrl, includeQuery, includeHash)
         queued.delete(normUrl)
+        if (visited.has(normUrl)) {
+            continue;
+        }
         visited.add(normUrl);
         let resultObj = null;
         try {
-            await page.goto(linkUrl.href, {
+            let response = await page.goto(linkUrl.href, {
                 waitUntil: "load",
                 timeout: 30000});
+
+            if(!response || response.status() >= 400)
+                continue;
+
+            const finalKey = normalizeUrl(page.url(), originUrl, includeQuery, includeHash);
+            if (visited.has(finalKey) && finalKey !== normUrl) {
+                continue;
+            }
+            visited.add(finalKey);
+
             let links = []
             let resultLinks = []
             
@@ -1014,8 +1027,9 @@ async function crawl(url, includeQuery=false, includeHash=false, depthLimit=3) {
                 links = await page.locator('a[href]').evaluateAll(links => links.map(link => link.href));
                 links.forEach(link => {
                     try {
-                    let elUrl = new URL(link, originUrl)
-                    let normElUrl = normalizeUrl(elUrl.href, originUrl, includeQuery, includeHash)
+                    let elUrl = new URL(link, page.url())
+                    let key = normalizeUrl(elUrl.href, originUrl, includeQuery, includeHash);
+                    let href = normalizeHref(elUrl.href, originUrl, includeQuery, includeHash);
 
                     if (elUrl.protocol !== "http:" && elUrl.protocol !== "https:") { //wrong protocol?
                         return;
@@ -1025,13 +1039,13 @@ async function crawl(url, includeQuery=false, includeHash=false, depthLimit=3) {
                         return;
                     }
                     
-                    if(!resultLinks.includes(normElUrl)) {
-                        resultLinks.push(normElUrl)
+                    if(!resultLinks.includes(key)) {
+                        resultLinks.push(key)
                     }
 
-                    if (!visited.has(normElUrl) && !queued.has(normElUrl)) {
-                        queued.add(normElUrl)
-                        queue.push({url: elUrl.href, depth: current.depth+1})
+                    if (!visited.has(key) && !queued.has(key)) {
+                        queued.add(key)
+                        queue.push({url: href, depth: current.depth+1})
                     }
                     }
                     catch (e) {
@@ -1041,7 +1055,7 @@ async function crawl(url, includeQuery=false, includeHash=false, depthLimit=3) {
             }
             
             resultObj = {
-                url: current.url,
+                url: normalizeHref(page.url(), originUrl, includeQuery, includeHash),
                 links: resultLinks
             }
         }
@@ -1063,6 +1077,15 @@ function normalizeUrl(url, baseUrl, includeQuery, includeHash) {
     if(!includeHash)
         norm.hash = "";
     return norm.host+norm.pathname+norm.search+norm.hash
+}
+
+function normalizeHref(url, baseUrl, includeQuery, includeHash) {
+    const norm = new URL(url, baseUrl);
+    if (!includeQuery) 
+        norm.search = "";
+    if (!includeHash) 
+        norm.hash = "";
+    return norm.href;
 }
 
 async function poll() {
