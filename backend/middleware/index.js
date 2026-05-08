@@ -1015,6 +1015,13 @@ async function crawl(url, includeQuery=false, includeHash=false, depthLimit=3) {
                 continue;
 
             const finalKey = normalizeUrl(page.url(), originUrl, includeQuery, includeHash);
+            const finalUrl = new URL(page.url());
+
+            queued.delete(finalKey);
+
+            if (!crawlScope(finalUrl, originUrl)) {
+                continue;
+            }
             if (visited.has(finalKey) && finalKey !== normUrl) {
                 continue;
             }
@@ -1031,13 +1038,8 @@ async function crawl(url, includeQuery=false, includeHash=false, depthLimit=3) {
                     let key = normalizeUrl(elUrl.href, originUrl, includeQuery, includeHash);
                     let href = normalizeHref(elUrl.href, originUrl, includeQuery, includeHash);
 
-                    if (elUrl.protocol !== "http:" && elUrl.protocol !== "https:") { //wrong protocol?
+                    if(!crawlScope(elUrl, originUrl))
                         return;
-                    }
-
-                    if(originUrl.host !== elUrl.host) { //external link?
-                        return;
-                    }
                     
                     if(!resultLinks.includes(key)) {
                         resultLinks.push(key)
@@ -1067,7 +1069,29 @@ async function crawl(url, includeQuery=false, includeHash=false, depthLimit=3) {
     }
     console.log("Crawling finished: "+url)
     await browser.close();
+    console.log(results);
     return results;
+}
+
+function crawlScope(elUrl, originUrl) {
+    if (elUrl.protocol !== "http:" && elUrl.protocol !== "https:") { //wrong protocol?
+        return false;
+    }
+
+    if(originUrl.host !== elUrl.host) { //external link?
+        return false;
+    }
+
+    const originPath = originUrl.pathname;
+
+    if (originPath === "/" || originPath === "") {
+        return true;
+    }
+
+    const elUrlPath = originPath.endsWith("/") ? originPath : originPath + "/";
+
+
+    return elUrl.pathname === originPath || elUrl.pathname.startsWith(elUrlPath);
 }
 
 function normalizeUrl(url, baseUrl, includeQuery, includeHash) {
