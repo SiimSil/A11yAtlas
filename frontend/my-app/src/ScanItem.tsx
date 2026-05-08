@@ -23,7 +23,7 @@ function ScanItem({ scan }: Props) {
         if(verdict==="Non-conforming") {
             return "redPill"
         }
-        else if(verdict==="Requires manual assessment") {
+        else if(verdict==="Needs review") {
             return "yellowPill"
         }
         else if(verdict==="Not verified") {
@@ -46,7 +46,7 @@ function ScanItem({ scan }: Props) {
             return "greyPill"
         }
         else {
-            return "greenPill"
+            return "bluePill"
         }
     }
 
