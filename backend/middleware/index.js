@@ -22,7 +22,7 @@ async function connect() {
 (async () => {
     await connect();
     app.listen(port, () => {
-        console.log(`Alternative Pa11y dashboard listening on port ${port}`)
+        console.log(`A11yAtlas listening on port ${port}`)
     })
     poll();
 })();
@@ -512,7 +512,7 @@ app.post('/scans', async (req, res) => {
             standard: standard,
             config: config,
             requiresAuth: requiresAuth,
-            status: "started",
+            status: "creating",
             verdict: "Not verified",
             count: {
                 error: 0,
@@ -587,7 +587,7 @@ app.post('/scans', async (req, res) => {
                 taskId: task.id
             })
         };
-        let updateResult = await collection.updateOne({ _id: id }, { $set: { scanCount: scanCount } });
+        let updateResult = await collection.updateOne({ _id: id }, { $set: { scanCount: scanCount, status: 'started' } });
         console.log('Updated scan count =>', updateResult);
         return res.json({
             message: "Tasks created and started",
@@ -697,7 +697,7 @@ app.post('/scans/:id/rerun', async (req, res) => {
                 warning: 0,
                 notice: 0
             },
-            status: "started",
+            status: "creating",
             verdict: "Not verified",
             rerunAt: new Date(),}});
         console.log('Updated results in db =>', updateResult);
@@ -757,7 +757,7 @@ app.post('/scans/:id/rerun', async (req, res) => {
                 taskId: task.id
             })
         };
-        let finalUpdateResult = await scanCollection.updateOne({ _id: idObj }, { $set: { scanCount: scanCount } });
+        let finalUpdateResult = await scanCollection.updateOne({ _id: idObj }, { $set: { scanCount: scanCount, status: 'started' } });
         console.log('Updated scan count =>', finalUpdateResult);
         return res.json({
             message: "Tasks created and started",
@@ -1076,6 +1076,8 @@ async function poll() {
             while (scans.length>0) {
                 let scan = scans.shift();
                 console.log("Poll: Scan found with id: "+scan._id)
+                if(scan.status==="creating")
+                    continue;
                 let error = 0;
                 let warning = 0;
                 let notice = 0;
