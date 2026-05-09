@@ -253,15 +253,24 @@ app.post('/scans/:id/analyze', async (req, res) => {
                 );
             }   
             let prompt = `
-                Summarize these Pa11y accessibility warnings for a developer.
+                You are helping a developer fix Pa11y accessibility warnings.
 
-                Focus on:
-                1. grouping similar issues,
-                2. which fixes are highest priority,
-                3. what can likely be fixed once in a shared component/template.
+                Use the warning message, selector, code, and surrounding HTML context to decide whether each warning likely requires a fix.
 
                 Do not restate every instance.
+                Do not call something a "failure" unless the warning or context clearly confirms a WCAG failure.
                 Be concise.
+                Group the warnings by priority: high, medium, low. Sort from low to high.
+
+                Filter out:
+                - duplicate instances of the same root cause,
+                - warnings where the HTML context shows the requirement is already met,
+                - warnings that are purely speculative and have no clear fix from the available context.
+
+                For each issue group, include a bullet point list:
+                - Issue and evidence from the HTML context
+                - Fix is needed: yes / manual check
+                - Suggested fix
 
                 Page URL: ${pageDoc.url}`;
             if(includeDom) {
@@ -290,7 +299,7 @@ app.post('/scans/:id/analyze', async (req, res) => {
                     const issueLabel = includeNotices ? 'warnings/notices' : 'warnings';
                     prompt += ` Pa11y ${issueLabel}: ${stringWarnings};`;
                     const completion = await client.chat.completions.create({
-                        model: "Qwen3.5-4B-Q4_K_M.gguf",
+                        model: "gemma-4-E4B-it-Q4_K_M.gguf",
                         messages: [
                             {   role: "user",
                                 content: prompt}],
@@ -390,17 +399,26 @@ app.post('/pages/:id/analyze', async (req, res) => {
     }  
 
     let prompt = `
-    Summarize these Pa11y accessibility warnings for a developer.
+        You are helping a developer fix Pa11y accessibility warnings.
 
-    Focus on:
-    1. grouping similar issues,
-    2. which fixes are highest priority,
-    3. what can likely be fixed once in a shared component/template.
+        Use the warning message, selector, code, and surrounding HTML context to decide whether each warning likely requires a fix.
 
-    Do not restate every instance.
-    Be concise.
+        Do not restate every instance.
+        Do not call something a "failure" unless the warning or context clearly confirms a WCAG failure.
+        Be concise.
+        Group the warnings by priority: high, medium, low. Sort from low to high.
 
-    Page URL: ${pageDoc.url}`;
+        Filter out:
+        - duplicate instances of the same root cause,
+        - warnings where the HTML context shows the requirement is already met,
+        - warnings that are purely speculative and have no clear fix from the available context.
+
+        For each issue group, include a bullet point list:
+        - Issue and evidence from the HTML context
+        - Fix is needed: yes / manual check
+        - Suggested fix
+
+        Page URL: ${pageDoc.url}`;
 
     let browser = null;
     if(includeDom) {
@@ -435,7 +453,7 @@ app.post('/pages/:id/analyze', async (req, res) => {
             prompt += ` Pa11y ${issueLabel}: ${stringWarnings};`;
             
             const completion = await client.chat.completions.create({
-                model: "Qwen3.5-4B-Q4_K_M.gguf",
+                model: "gemma-4-E4B-it-Q4_K_M.gguf",
                 messages: [
                     {   role: "user",
                         content: prompt}],
@@ -1007,6 +1025,18 @@ async function crawl(url, includeQuery=false, includeHash=false, depthLimit=3) {
         visited.add(normUrl);
         let resultObj = null;
         try {
+            let testHeaderRes = await fetch(linkUrl.href, 
+                {
+                    method: "HEAD",
+                    redirect: "follow"
+                }
+            );
+
+            let contentType = testHeaderRes.headers.get("content-type") || "";
+            if (!contentType.toLowerCase().includes("text/html")) {
+                continue;
+            }
+
             let response = await page.goto(linkUrl.href, {
                 waitUntil: "load",
                 timeout: 30000});
@@ -1146,9 +1176,6 @@ async function poll() {
                         if(latestResult) {
                             let resultDate = new Date(latestResult.date);
                             let pageDate = page.updatedAt || page.createdAt;
-                            console.log(resultDate.getTime())
-                            console.log(pageDate.getTime())
-                            console.log(!(pageDate.getTime()===resultDate.getTime()))
 
                             if(!(pageDate.getTime()===resultDate.getTime())) {
                                 unchanged=false;
