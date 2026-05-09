@@ -99,7 +99,7 @@ function Stats() {
                     <p>Average notices: {queryData.avgNoticePage}</p>
                 </div>
                 <BarChart
-                    style={{ width: '100%', minWidth:'25rem', maxWidth: '30rem', maxHeight: '20rem', height: '100%', aspectRatio: 1 }}
+                    style={{ width: '100%', minWidth:'22rem', maxWidth: '22rem', maxHeight: '20rem', height: '100%', aspectRatio: 1 }}
                     responsive
                     data={pa11yIssueChartData}
                     margin={{
@@ -136,7 +136,7 @@ function Stats() {
                     <p>Conforming scans: {queryData.conformPercent}%</p>
                 </div>
                 <BarChart
-                    style={{ width: '100%', minWidth: '25rem', maxWidth: '30rem', maxHeight: '20rem', height: '100%', aspectRatio: 1 }}
+                    style={{ width: '100%', minWidth: '22rem', maxWidth: '22rem', maxHeight: '20rem', height: '100%', aspectRatio: 1 }}
                     responsive
                     data={standardChartData}
                     margin={{

@@ -30,12 +30,18 @@
     padding: 1rem;
 }
 
+
+.analysis p, li {
+    text-align: left;
+}
+
 .aiHeader {
     display: flex;
     flex-direction: row;
     border-bottom: 1px solid #2e303a;
     align-items: center;
     padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .aiHeader h2{

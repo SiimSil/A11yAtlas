@@ -39,11 +39,11 @@ function ScanItem({ scan }: Props) {
         if(status==="failed") {
             return "redPill"
         }
-        else if(status==="started") {
-            return "bluePill"
-        }
         else if(status==="partially complete") {
             return "greyPill"
+        }
+        else if(status==="completed") {
+            return "greenPill"
         }
         else {
             return "bluePill"

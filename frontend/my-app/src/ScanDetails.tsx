@@ -173,7 +173,7 @@ function ScanDetails() {
                         </div>
                     </div>
                     <PieChart
-                        style={{ width: '100%', height: '100%', maxWidth: '15rem', maxHeight: '15rem', aspectRatio: 1 }}
+                        style={{ width: '80%', height: '80%', maxWidth: '15rem', maxHeight: '15rem', aspectRatio: 1 }}
                         responsive
                         >
                         <Pie
