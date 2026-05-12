@@ -2,7 +2,7 @@ import { useReactTable, createColumnHelper, getCoreRowModel, flexRender, getSort
 import type { SortingState } from "@tanstack/react-table";
 import type { SubpageTableData, SubpageResponse } from './types'
 import './SubpageTable.css'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import SubpageDetails from './SubpageDetails';
 
 const columnHelper = createColumnHelper<SubpageTableData>()
@@ -117,6 +117,8 @@ function SubpageTable({ pagesData }: { pagesData: SubpageResponse[] }) {
     const [selectedRowId, setSelectedRowId] = useState<string | undefined>(undefined)
     const [search, setSearch] = useState('')
 
+    const detailsRef = useRef<HTMLDivElement | null>(null)
+
     const selectedRow = useMemo(
         () => pagesData.find((page) => page._id === selectedRowId),
         [pagesData, selectedRowId]
@@ -152,6 +154,15 @@ function SubpageTable({ pagesData }: { pagesData: SubpageResponse[] }) {
             page.aiStatus.toLowerCase().includes(searchLower)
         )
     }, [pages, search])
+    
+    useEffect(() => {
+    if (selectedRow) {
+        detailsRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        })
+    }
+    }, [selectedRow])
 
     const table = useReactTable({
         data: filteredPages,
@@ -277,8 +288,10 @@ function SubpageTable({ pagesData }: { pagesData: SubpageResponse[] }) {
             <input type='number' min={1} max={table.getPageCount()} onChange={(e) => setgoToIndex(e.target.valueAsNumber)}></input>
             <button onClick={() => setpageIndex({pageIndex: goToIndex-1, pageSize: pagination.pageSize})}>Go to page</button>
         </div>
-        {selectedRow!==undefined && (
-            <SubpageDetails page={selectedRow}></SubpageDetails>
+        {selectedRow && (
+            <div ref={detailsRef} className="subpageDetailsAnchor">
+                <SubpageDetails page={selectedRow}></SubpageDetails>
+            </div>
         )}
     </div>
 )}
