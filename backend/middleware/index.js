@@ -315,9 +315,9 @@ app.post('/scans/:id/analyze', async (req, res) => {
                     result.push(resultEl)
                 }
                 else {
-                    let updateAi = await collection.updateOne({ _id: pageDoc._id }, { $set: {analysedAt: new Date(), aiAnalysis: null, 
+                    let updateAi = await collection.updateOne({ _id: pageDoc._id }, { $set: {analysedAt: new Date(), aiAnalysis: "No warnings to analyze.", 
                         aiStatus: "completed", aiSourceResultDate: aiSourceResultDate}});
-                    console.log('Updated AI status to completed, no warnings and notices found =>', updateAi);
+                    console.log('Updated AI status to completed, no warnings found =>', updateAi);
                     resultEl.status="completed";
                     resultEl.aiAnalysis=null;
                     result.push(resultEl);
@@ -469,9 +469,9 @@ app.post('/pages/:id/analyze', async (req, res) => {
             return res.status(200).json(resultEl)
         }
         else {
-            let updateAi = await collection.updateOne({ _id: pageDoc._id }, { $set: {analysedAt: new Date(), aiAnalysis: null, 
+            let updateAi = await collection.updateOne({ _id: pageDoc._id }, { $set: {analysedAt: new Date(), aiAnalysis: "No warnings to analyze.", 
                 aiStatus: "completed", aiSourceResultDate: aiSourceResultDate}});
-            console.log('Updated AI status to completed, no warnings and notices found =>', updateAi);
+            console.log('Updated AI status to completed, no warnings found =>', updateAi);
             resultEl.status="completed";
             resultEl.aiAnalysis=null;
             return res.status(200).json(resultEl)
