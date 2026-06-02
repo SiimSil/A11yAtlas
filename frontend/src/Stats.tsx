@@ -242,7 +242,7 @@ function Stats() {
                     <p>AI completion: {queryData.aiCompletePercent}%</p>
                 </div>
                 <PieChart
-                    style={{ width: '100%', height: '100%', minHeight: '15', minWidth: '15rem', maxWidth: '10rem', maxHeight: '15rem', aspectRatio: 1 }}
+                    style={{ width: '100%', height: '100%', minHeight: '13rem', minWidth: '13rem', maxWidth: '10rem', maxHeight: '15rem', aspectRatio: 1 }}
                     responsive
                     >
                     <Pie
