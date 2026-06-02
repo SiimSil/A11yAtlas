@@ -2,7 +2,7 @@
     "scripts": {
         "setup:webservice": "git clone https://github.com/pa11y/pa11y-webservice.git pa11y-webservice",
         "install:all": "npm install && cd backend && npm install && npx playwright install && cd ../frontend && npm install && cd ../pa11y-webservice && npm install",
-        "dev": "concurrently -n \"pa11y,backend,frontend\" \"npm --prefix pa11y-webservice start\" \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\""
+        "dev": "concurrently -n \"pa11y,backend,frontend\" \"cd pa11y-webservice && npm start\" \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
     },
     "devDependencies": {
         "concurrently": "^9.0.0"
